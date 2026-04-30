@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🐱 Demo - ZuzitaErrorUI | Depuración visual con estilo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      padding: 20px;
+      color: #f0f0f0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Tarjeta principal */
+    .hero {
+      background: rgba(20, 20, 40, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 40px;
+      padding: 30px 25px;
+      margin-bottom: 30px;
+      text-align: center;
+      border: 1px solid rgba(108, 99, 255, 0.3);
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #fff, #a29bfe);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: #ccc;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      background: #6c63ff;
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    /* Grid de acciones */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      border-radius: 28px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+      border-color: #6c63ff;
+    }
+
+    .card h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .card p {
+      color: #bbb;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    button {
+      background: #2d2d44;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-right: 10px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    button.primary {
+      background: #6c63ff;
+    }
+
+    button.danger {
+      background: #e84393;
+    }
+
+    button.warning {
+      background: #fdcb6e;
+      color: #1e1e2a;
+    }
+
+    button.secondary {
+      background: #00cec9;
+      color: #1e1e2a;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+      transform: scale(0.97);
+    }
+
+    /* Código y demostración de errores */
+    .code-block {
+      background: #0a0a14;
+      border-radius: 20px;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      margin: 15px 0;
+      border-left: 4px solid #6c63ff;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.75rem;
+      color: #aaa;
+    }
+
+    hr {
+      margin: 20px 0;
+      border-color: #2a2a44;
+    }
+
+    .inline-icon {
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.8rem; }
+      .card h3 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="hero">
+    <div class="badge">🐱 Herramienta de depuración visual</div>
+    <h1>ZuzitaErrorUI Demo</h1>
+    <p>Desarrollo móvil sin consola tradicional · Intercepta errores, monitorea red y muestra UI amigable</p>
+    <div style="margin-top: 15px;">
+      <button id="abrirConsolaBtn" class="secondary">📟 Abrir consola visual</button>
+      <button id="cerrarErrorBtn">❌ Cerrar error actual</button>
+    </div>
+  </div>
+
+  <!-- GRID DE PRUEBAS -->
+  <div class="grid">
+    <!-- Error 404 -->
+    <div class="card">
+      <h3>🔍 4️⃣0️⃣4️⃣ <span style="font-size: 1rem;">No encontrado</span></h3>
+      <p>Simula un recurso inexistente, como una API o página perdida. Muestra el ícono 404 y mensaje amigable.</p>
+      <button id="btn404" class="primary">🌐 Simular error 404</button>
+      <button id="btnFetch404" class="warning">📡 Fetch a /api/no-existe</button>
+    </div>
+
+    <!-- Offline / Conexión -->
+    <div class="card">
+      <h3>📡 Offline <span style="font-size: 1rem;">Sin red</span></h3>
+      <p>Simula la pérdida de conexión a internet. El sistema reacciona automáticamente al evento 'offline'.</p>
+      <button id="btnOffline" class="warning">🔌 Simular offline</button>
+      <button id="btnOnline" class="secondary">✅ Restaurar conexión</button>
+    </div>
+
+    <!-- Error JS (Runtime) -->
+    <div class="card">
+      <h3>🐛 JavaScript Error</h3>
+      <p>Lanza una excepción real en el código o causa un ReferenceError para activar la UI de errores.</p>
+      <button id="btnJsError" class="danger">💥 Lanzar error JS</button>
+      <button id="btnReferencia" class="danger">❓ Referencia no definida</button>
+    </div>
+
+    <!-- Servidor / 500 -->
+    <div class="card">
+      <h3>🖥️ Error servidor</h3>
+      <p>Simula respuesta 500 desde un fetch o muestra error de conexión al backend.</p>
+      <button id="btnServerError" class="danger">🗄️ Fetch 500 simulado</button>
+      <button id="btnPromesaRechazada" class="warning">💔 Promesa rechazada</button>
+    </div>
+
+    <!-- Página vacía / contenido faltante -->
+    <div class="card">
+      <h3>🚧 Página vacía</h3>
+      <p>Muestra el mensaje de "contenido no encontrado" — útil para SPAs sin root.</p>
+      <button id="btnEmptyPage" class="secondary">📄 Mostrar error "vacío"</button>
+      <button id="btnPersonalizado" class="primary">🎨 Error personalizado</button>
+    </div>
+
+    <!-- Utilidades extra -->
+    <div class="card">
+      <h3>📋 Utilidades + Log</h3>
+      <p>Log manual, toggle consola, y ver estado de errores registrados.</p>
+      <button id="btnLogMessage" class="secondary">➕ Agregar mensaje a consola</button>
+      <button id="btnMostrarConsola" class="secondary">🪟 Mostrar consola</button>
+      <button id="btnOcultarOverlay" class="warning">🙈 Ocultar overlay</button>
+    </div>
+  </div>
+
+  <!-- Demostración extra -->
+  <div class="hero" style="background: rgba(0,0,0,0.4); text-align: left;">
+    <h3 style="margin-bottom: 10px;">✨ ¿Qué hace ZuzitaErrorUI?</h3>
+    <ul style="margin-left: 20px; color: #ccc; line-height: 1.5;">
+      <li>✅ Intercepta <strong>window.onerror</strong> y promesas rechazadas.</li>
+      <li>✅ Detecta cambios en conexión (offline/online).</li>
+      <li>✅ Monitorea <strong>fetch</strong> para códigos 404 y 500.</li>
+      <li>✅ Consola visual flotante accesible desde móvil.</li>
+      <li>✅ Mensajes amigables según tipo de error + botón reintentar.</li>
+    </ul>
+    <div class="code-block">
+      // Uso manual desde consola del navegador<br>
+      ZuzitaErrorUI.mostrar('server', 'Error simulado desde consola');<br>
+      ZuzitaErrorUI.log('Mensaje personalizado');<br>
+      ZuzitaErrorUI.toggleConsole();
+    </div>
+  </div>
+  <footer>
+    🐱 ZuzitaErrorUI v1.0 | Diseñado para desarrollo móvil sin consola. Botón flotante <strong>⚙️</strong> abajo a la derecha.
+  </footer>
+</div>
+
+<!-- Incluimos el script del error-ui (integrado aquí para demo) -->
+<script>
+  // AQUÍ VA EL CÓDIGO COMPLETO DE error-ui.js (para que funcione la demo)
+  // Por claridad se pega directamente el código fuente de error-ui.js
+  (function() {
+    'use strict';
+
+    // ============================================
+    // ⚙️ CONFIGURACIÓN
+    // ============================================
+    const DEBUG = true;
+    
+    // Imágenes personalizables (URLs o emojis grandes)
+    const IMAGES = {
+      default: '🐱🔧',
+      '404': '4️⃣0️⃣4️⃣💔',
+      offline: '📡❌',
+      server: '🖥️💥',
+      js: '🐛💻',
+      unknown: '❓💫',
+      empty: '🚧🐱'
+    };
+
+    // Mensajes amigables por tipo de error
+    const MENSAJES = {
+      default: {
+        titulo: 'Ups… algo se rompió 👀',
+        subtitulo: 'Hmm… esto no salió como esperaba 🛠',
+      },
+      '404': {
+        titulo: 'Oops, la página se perdió por ahí 🐾',
+        subtitulo: 'Los números 404 están tirados en el suelo…',
+      },
+      offline: {
+        titulo: '¡Sin conexión! 📡',
+        subtitulo: 'Parece que las señales se cayeron',
+      },
+      server: {
+        titulo: 'El servidor está durmiendo 🖥️💤',
+        subtitulo: 'Tranqui, estamos arreglando esto 💜',
+      },
+      js: {
+        titulo: '¡Un bichito en el código! 🐛',
+        subtitulo: 'Un error de JavaScript se coló por aquí',
+      },
+      unknown: {
+        titulo: 'Misterio… algo pasó 🕵️',
+        subtitulo: 'No sabemos qué fue, pero lo investigaremos',
+      },
+      empty: {
+        titulo: '🚧 Página en construcción',
+        subtitulo: 'Esta parte aún la estoy armando 💜',
+      }
+    };
+
+    // ============================================
+    // 📦 MÓDULO: Utilidades
+    // ============================================
+    const Util = {
+      generarId: () => 'zuzita_' + Math.random().toString(36).substr(2, 9),
+      
+      formatearTimestamp: () => {
+        const ahora = new Date();
+        return ahora.toLocaleTimeString('es-ES', { 
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      },
+
+      crearElemento: (tag, attrs = {}, ...hijos) => {
+        const elem = document.createElement(tag);
+        Object.entries(attrs).forEach(([key, val]) => {
+          if (key === 'estilo') Object.assign(elem.style, val);
+          else if (key === 'className') elem.className = val;
+          else elem[key] = val;
+        });
+        hijos.forEach(hijo => {
+          if (typeof hijo === 'string') elem.appendChild(document.createTextNode(hijo));
+          else if (hijo) elem.appendChild(hijo);
+        });
+        return elem;
+      },
+
+      debounce: (fn, delay) => {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn(...args), delay);
+        };
+      }
+    };
+
+    // ============================================
+    // 📦 MÓDULO: Consola Visual
+    // ============================================
+    const Consola = {
+      _entradas: [],
+      _contenedor: null,
+      _output: null,
+      _visible: false,
+      _maxEntradas: 100,
+
+      inicializar: () => {
+        Consola._crearUI();
+        Consola._interceptarConsola();
+        Consola.agregar('✅ ZuzitaErrorUI activo 💜', 'info');
+      },
+
+      _crearUI: () => {
+        // Botón flotante
+        const btn = Util.crearElemento('button', {
+          id: 'zuzita_btn_consola',
+          texto: '⚙️',
+          estilo: {
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: '9997',
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            border: 'none',
+            background: '#1a1a2e',
+            color: '#e0e0e0',
+            fontSize: '24px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease'
+          },
+          onclick: Consola.toggle
+        });
+        
+        // Contenedor de la consola
+        Consola._contenedor = Util.crearElemento('div', {
+          id: 'zuzita_consola',
+          estilo: {
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            right: '0',
+            zIndex: '9996',
+            background: '#0a0a0a',
+            borderTop: '2px solid #333',
+            fontFamily: '"Courier New", monospace',
+            fontSize: '12px',
+            display: 'none',
+            maxHeight: '40vh',
+            transition: 'transform 0.3s ease',
+            transform: 'translateY(100%)'
+          }
+        });
+
+        // Header
+        const header = Util.crearElemento('div', {
+          estilo: {
+            padding: '8px 15px',
+            background: '#1a1a2e',
+            color: '#e0e0e0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #333',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }
+        }, 
+          Util.crearElemento('span', {}, '🐱 Terminal Zuzita'),
+          Util.crearElemento('button', {
+            texto: '✕',
+            estilo: {
+              background: 'none',
+              border: 'none',
+              color: '#e0e0e0',
+              fontSize: '18px',
+              cursor: 'pointer',
+              padding: '0 5px'
+            },
+            onclick: Consola.toggle
+          })
+        );
+
+        // Área de salida
+        Consola._output = Util.crearElemento('div', {
+          estilo: {
+            padding: '10px 15px',
+            color: '#00ff41',
+            overflowY: 'auto',
+            maxHeight: 'calc(40vh - 60px)',
+            lineHeight: '1.6'
+          }
+        });
+
+        Consola._contenedor.appendChild(header);
+        Consola._contenedor.appendChild(Consola._output);
+        
+        document.body.appendChild(btn);
+        document.body.appendChild(Consola._contenedor);
+      },
+
+      _interceptarConsola: () => {
+        const originales = {};
+        ['log', 'warn', 'error', 'info'].forEach(nivel => {
+          originales[nivel] = console[nivel];
+          console[nivel] = function(...args) {
+            originales[nivel].apply(console, args);
+            Consola.agregar(args.join(' '), nivel);
+          };
+        });
+      },
+
+      agregar: (mensaje, nivel = 'log') => {
+        const entrada = {
+          timestamp: Util.formatearTimestamp(),
+          mensaje: String(mensaje),
+          nivel
+        };
+        Consola._entradas.push(entrada);
+        
+        if (Consola._entradas.length > Consola._maxEntradas) {
+          Consola._entradas.shift();
+        }
+
+        if (Consola._visible && Consola._output) {
+          Consola._renderizarEntrada(entrada);
+        }
+      },
+
+      _renderizarEntrada: (entrada) => {
+        const colores = {
+          log: '#00ff41',
+          warn: '#ffd700',
+          error: '#ff6b6b',
+          info: '#4dabf7'
+        };
+
+        const linea = Util.crearElemento('div', {
+          estilo: {
+            marginBottom: '4px',
+            wordBreak: 'break-all'
+          }
+        },
+          Util.crearElemento('span', {
+            estilo: { color: '#888', marginRight: '8px' }
+          }, entrada.timestamp),
+          Util.crearElemento('span', {
+            estilo: { color: colores[entrada.nivel] || '#00ff41' }
+          }, entrada.mensaje)
+        );
+
+        Consola._output.appendChild(linea);
+        Consola._output.scrollTop = Consola._output.scrollHeight;
+      },
+
+      _renderizarTodo: () => {
+        if (!Consola._output) return;
+        Consola._output.innerHTML = '';
+        Consola._entradas.forEach(Consola._renderizarEntrada);
+      },
+
+      toggle: () => {
+        Consola._visible = !Consola._visible;
+        if (Consola._visible) {
+          Consola._contenedor.style.display = 'block';
+          setTimeout(() => {
+            Consola._contenedor.style.transform = 'translateY(0)';
+            Consola._renderizarTodo();
+          }, 10);
+        } else {
+          Consola._contenedor.style.transform = 'translateY(100%)';
+          setTimeout(() => {
+            Consola._contenedor.style.display = 'none';
+          }, 300);
+        }
+      },
+
+      mostrar: () => {
+        if (!Consola._visible) Consola.toggle();
+      },
+
+      ocultar: () => {
+        if (Consola._visible) Consola.toggle();
+      }
+    };
+
+    // ============================================
+    // 📦 MÓDULO: UI de Errores
+    // ============================================
+    const UI = {
+      _overlay: null,
+      _errorActual: null,
+      _historial: [],
+      _ultimoError: null,
+
+      inicializar: () => {
+        UI._crearOverlay();
+      },
+
+      _crearOverlay: () => {
+        UI._overlay = Util.crearElemento('div', {
+          id: 'zuzita_overlay',
+          estilo: {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            zIndex: '9999',
+            background: 'rgba(10, 10, 20, 0.95)',
+            display: 'none',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            animation: 'zuzita_fadeIn 0.3s ease',
+            padding: '20px',
+            boxSizing: 'border-box'
+          },
+          onclick: (e) => {
+            if (e.target === UI._overlay) UI.ocultar();
+          }
+        });
+
+        // Inyectar keyframes CSS
+        const estilos = document.createElement('style');
+        estilos.textContent = `
+          @keyframes zuzita_fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes zuzita_scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+          @keyframes zuzita_slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          @keyframes zuzita_float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+          }
+          .zuzita_boton {
+            padding: 12px 24px;
+            margin: 8px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #2d2d44;
+            color: #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+          }
+          .zuzita_boton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            background: #3d3d5c;
+          }
+          .zuzita_boton_primario {
+            background: #6c63ff;
+            color: white;
+          }
+          .zuzita_boton_primario:hover {
+            background: #7c73ff;
+          }
+          .zuzita_icono_grande {
+            font-size: 80px;
+            animation: zuzita_float 3s ease-in-out infinite;
+            margin-bottom: 20px;
+          }
+          .zuzita_titulo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin: 10px 0;
+            text-align: center;
+            animation: zuzita_scaleIn 0.4s ease;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          }
+          .zuzita_subtitulo {
+            font-size: 16px;
+            color: #aaa;
+            margin: 10px 0 30px;
+            text-align: center;
+            animation: zuzita_slideUp 0.5s ease;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          }
+          .zuzita_detalle {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 11px;
+            color: #888;
+            word-break: break-all;
+            max-width: 90vw;
+            max-height: 100px;
+            overflow-y: auto;
+            display: ${DEBUG ? 'block' : 'none'};
+          }
+        `;
+        document.head.appendChild(estilos);
+        document.body.appendChild(UI._overlay);
+      },
+
+      mostrar: (tipo = 'default', detalle = '') => {
+        const ahora = Date.now();
+        const clave = `${tipo}_${detalle}`;
+        if (UI._ultimoError && UI._ultimoError.clave === clave && (ahora - UI._ultimoError.tiempo) < 2000) {
+          return;
+        }
+        UI._ultimoError = { clave, tiempo: ahora };
+
+        const imagen = IMAGES[tipo] || IMAGES['default'];
+        const mensajes = MENSAJES[tipo] || MENSAJES['default'];
+        
+        UI._errorActual = { tipo, detalle, timestamp: new Date().toISOString() };
+        UI._historial.push(UI._errorActual);
+
+        UI._overlay.innerHTML = '';
+
+        const contenedor = Util.crearElemento('div', {
+          estilo: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            maxWidth: '400px',
+            animation: 'zuzita_scaleIn 0.3s ease'
+          }
+        });
+
+        const icono = Util.crearElemento('div', {
+          className: 'zuzita_icono_grande',
+          texto: imagen
+        });
+        contenedor.appendChild(icono);
+        contenedor.appendChild(Util.crearElemento('div', { className: 'zuzita_titulo' }, mensajes.titulo));
+        contenedor.appendChild(Util.crearElemento('div', { className: 'zuzita_subtitulo' }, mensajes.subtitulo));
+
+        if (DEBUG && detalle) {
+          contenedor.appendChild(Util.crearElemento('div', { className: 'zuzita_detalle' }, detalle));
+        }
+
+        const botones = Util.crearElemento('div', {
+          estilo: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '10px',
+            marginTop: '10px'
+          }
+        });
+
+        botones.appendChild(Util.crearElemento('button', {
+          className: 'zuzita_boton zuzita_boton_primario',
+          texto: '🔄 Reintentar',
+          onclick: () => {
+            UI.ocultar();
+            if (tipo === 'offline') {
+              window.location.reload();
+            } else if (tipo === '404') {
+              window.location.href = '/';
+            } else {
+              window.location.reload();
+            }
+          }
+        }));
+
+        botones.appendChild(Util.crearElemento('button', {
+          className: 'zuzita_boton',
+          texto: '🔍 Ver detalles',
+          onclick: () => {
+            Consola.mostrar();
+          }
+        }));
+
+        botones.appendChild(Util.crearElemento('button', {
+          className: 'zuzita_boton',
+          texto: '✕ Cerrar',
+          onclick: UI.ocultar
+        }));
+
+        contenedor.appendChild(botones);
+        UI._overlay.appendChild(contenedor);
+        UI._overlay.style.display = 'flex';
+        
+        Consola.agregar(`🐱 Error [${tipo}]: ${detalle || 'Sin detalle adicional'}`, 'error');
+      },
+
+      ocultar: () => {
+        if (UI._overlay) {
+          UI._overlay.style.opacity = '0';
+          UI._overlay.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => {
+            UI._overlay.style.display = 'none';
+            UI._overlay.style.opacity = '1';
+          }, 300);
+        }
+      }
+    };
+
+    // ============================================
+    // 📦 MÓDULO: Detección de Errores
+    // ============================================
+    const Deteccion = {
+      _fetchOriginal: null,
+      _erroresDetectados: new Set(),
+
+      inicializar: () => {
+        Deteccion._monitorearOffline();
+        Deteccion._monitorearErroresJS();
+        Deteccion._monitorearErroresFetch();
+        Deteccion._monitorearPromesas();
+        Deteccion._detectarPaginaVacia();
+      },
+
+      _monitorearOffline: () => {
+        window.addEventListener('offline', () => {
+          if (Deteccion._erroresDetectados.has('offline')) return;
+          Deteccion._erroresDetectados.add('offline');
+          Consola.agregar('📡 Conexión perdida', 'warn');
+          UI.mostrar('offline', 'Se perdió la conexión a internet');
+        });
+
+        window.addEventListener('online', () => {
+          Deteccion._erroresDetectados.delete('offline');
+          Consola.agregar('📡 Conexión restaurada 💜', 'info');
+          UI.ocultar();
+        });
+
+        if (!navigator.onLine) {
+          UI.mostrar('offline', 'No hay conexión a internet');
+        }
+      },
+
+      _monitorearErroresJS: () => {
+        window.onerror = function(mensaje, fuente, linea, columna, error) {
+          const clave = `${mensaje}_${linea}_${columna}`;
+          if (Deteccion._erroresDetectados.has(clave)) return;
+          Deteccion._erroresDetectados.add(clave);
+
+          let tipo = 'js';
+          if (mensaje.includes('ReferenceError')) tipo = 'js';
+          else if (mensaje.includes('fetch')) tipo = 'server';
+          else if (mensaje.includes('404')) tipo = '404';
+
+          Consola.agregar(`❌ ${mensaje} (${fuente}:${linea})`, 'error');
+          
+          if (DEBUG) {
+            UI.mostrar(tipo, `Error: ${mensaje}\nArchivo: ${fuente}:${linea}`);
+          } else {
+            UI.mostrar(tipo);
+          }
+          return true;
+        };
+      },
+
+      _monitorearErroresFetch: () => {
+        Deteccion._fetchOriginal = window.fetch;
+        
+        window.fetch = function(...args) {
+          return Deteccion._fetchOriginal.apply(this, args)
+            .then(response => {
+              if (response.status === 404) {
+                const clave = `fetch404_${args[0]}`;
+                if (!Deteccion._erroresDetectados.has(clave)) {
+                  Deteccion._erroresDetectados.add(clave);
+                  Consola.agregar(`📭 404: ${args[0]}`, 'error');
+                  UI.mostrar('404', `Recurso no encontrado: ${args[0]}`);
+                }
+              } else if (response.status >= 500) {
+                Consola.agregar(`🖥️ Server error ${response.status}: ${args[0]}`, 'error');
+                UI.mostrar('server', `Error del servidor (${response.status})`);
+              }
+              return response;
+            })
+            .catch(error => {
+              Consola.agregar(`🌐 Fetch error: ${error.message}`, 'error');
+              if (!navigator.onLine) {
+                UI.mostrar('offline');
+              } else {
+                UI.mostrar('server', error.message);
+              }
+              throw error;
+            });
+        };
+      },
+
+      _monitorearPromesas: () => {
+        window.addEventListener('unhandledrejection', (event) => {
+          const mensaje = event.reason?.message || String(event.reason);
+          const clave = `promise_${mensaje}`;
+          if (Deteccion._erroresDetectados.has(clave)) return;
+          Deteccion._erroresDetectados.add(clave);
+
+          Consola.agregar(`💥 Promesa rechazada: ${mensaje}`, 'error');
+          if (mensaje.includes('404')) {
+            UI.mostrar('404', mensaje);
+          } else {
+            UI.mostrar('js', mensaje);
+          }
+        });
+      },
+
+      _detectarPaginaVacia: () => {
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            const body = document.body;
+            const textoVisible = body.innerText?.trim() || '';
+            const elementos = body.children.length;
+            const tieneApp = document.getElementById('app') || 
+                            document.getElementById('root') ||
+                            document.querySelector('[data-app]');
+            
+            if (!tieneApp && elementos <= 2 && textoVisible.length < 20) {
+              Consola.agregar('🚧 Página vacía detectada', 'info');
+              UI.mostrar('empty', 'No se encontró contenido en esta página');
+            }
+          }, 500);
+        });
+      }
+    };
+
+    const ZuzitaErrorUI = {
+      mostrar: (tipo = 'unknown', detalle = '') => { UI.mostrar(tipo, detalle); },
+      log: (mensaje) => { Consola.agregar(mensaje, 'log'); },
+      toggleConsole: () => { Consola.toggle(); },
+      ocultar: () => { UI.ocultar(); }
+    };
+
+    const inicializar = () => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          Consola.inicializar();
+          UI.inicializar();
+          Deteccion.inicializar();
+          window.ZuzitaErrorUI = ZuzitaErrorUI;
+          if (DEBUG) setTimeout(() => Consola.mostrar(), 500);
+          Consola.agregar('🐱 ZuzitaErrorUI listo 💜', 'info');
+        });
+      } else {
+        Consola.inicializar();
+        UI.inicializar();
+        Deteccion.inicializar();
+        window.ZuzitaErrorUI = ZuzitaErrorUI;
+        if (DEBUG) setTimeout(() => Consola.mostrar(), 500);
+        Consola.agregar('🐱 ZuzitaErrorUI listo 💜', 'info');
+      }
+    };
+
+    inicializar();
+  })();
+</script>
+
+<script>
+  // Demo: Botones interactivos usando la API expuesta
+  document.getElementById('abrirConsolaBtn')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.toggleConsole();
+  });
+  document.getElementById('cerrarErrorBtn')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.ocultar();
+  });
+  
+  // 404 manual y fetch
+  document.getElementById('btn404')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.mostrar('404', 'Recurso perdido (demo manual)');
+  });
+  document.getElementById('btnFetch404')?.addEventListener('click', async () => {
+    try {
+      await fetch('/pagina-que-no-existe-404');
+    } catch(e) { /* ya lo captura la UI */ }
+  });
+  
+  // offline / online manual
+  document.getElementById('btnOffline')?.addEventListener('click', () => {
+    window.dispatchEvent(new Event('offline'));
+  });
+  document.getElementById('btnOnline')?.addEventListener('click', () => {
+    window.dispatchEvent(new Event('online'));
+  });
+  
+  // JS Errors
+  document.getElementById('btnJsError')?.addEventListener('click', () => {
+    throw new Error("🐛 Error lanzado manualmente para probar ZuzitaErrorUI");
+  });
+  document.getElementById('btnReferencia')?.addEventListener('click', () => {
+    eval("variableInexistente.metodo()");
+  });
+  
+  // server error (fetch 500)
+  document.getElementById('btnServerError')?.addEventListener('click', async () => {
+    try {
+      const mockFetch = await fetch('https://httpbin.org/status/500');
+      await mockFetch.text();
+    } catch(e) {}
+  });
+  document.getElementById('btnPromesaRechazada')?.addEventListener('click', () => {
+    Promise.reject(new Error("💔 Promesa rechazada desde la demo"));
+  });
+  
+  // empty page
+  document.getElementById('btnEmptyPage')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.mostrar('empty', 'No se encontró contenedor principal');
+  });
+  document.getElementById('btnPersonalizado')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.mostrar('unknown', 'Este es un error personalizado');
+  });
+  
+  // logs y consola
+  document.getElementById('btnLogMessage')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.log("✨ Mensaje manual desde la UI de demo");
+    console.log("Este mensaje también se refleja en la consola visual");
+  });
+  document.getElementById('btnMostrarConsola')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.toggleConsole();
+  });
+  document.getElementById('btnOcultarOverlay')?.addEventListener('click', () => {
+    if (window.ZuzitaErrorUI) window.ZuzitaErrorUI.ocultar();
+  });
+</script>
+</body>
+</html>
